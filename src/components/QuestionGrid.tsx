@@ -1,7 +1,7 @@
 "use client";
 
 import { Question, QuestionType } from "@/types/question";
-import { AlignLeft, BarChart, CheckCircle2, List, Plus, RefreshCw, Trash2, Users, Copy, QrCode } from "lucide-react";
+import { AlignLeft, BarChart, CheckCircle2, List, Plus, RefreshCw, Trash2, Users, Copy, QrCode, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Modal } from "./Modal";
 import { QuestionGridItem } from "./QuestionGridItem";
@@ -404,12 +404,12 @@ export function QuestionGrid() {
                     {/* Create Button */}
                     <button
                         onClick={handleOpenCreateTypeSelection}
-                        className="aspect-square flex flex-col items-center justify-center bg-blue-50/30 border-2 border-dashed border-blue-200 rounded-2xl hover:border-blue-500 hover:bg-blue-50/80 transition-all duration-300 group hover:shadow-md h-full min-h-[220px]"
+                        className="md:aspect-square w-full h-32 md:h-full md:min-h-[220px] flex flex-row md:flex-col items-center justify-center bg-blue-50/30 border-2 border-dashed border-blue-200 rounded-2xl hover:border-blue-500 hover:bg-blue-50/80 transition-all duration-300 group hover:shadow-md gap-4 md:gap-0"
                     >
-                        <div className="w-14 h-14 bg-white shadow-sm rounded-full flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform mb-4 border border-blue-100 relative group-hover:shadow-blue-200/50">
-                            <Plus size={28} strokeWidth={2.5} />
+                        <div className="w-12 h-12 md:w-14 md:h-14 bg-white shadow-sm rounded-full flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform md:mb-4 border border-blue-100 relative group-hover:shadow-blue-200/50">
+                            <Plus size={24} className="md:w-7 md:h-7" strokeWidth={2.5} />
                         </div>
-                        <span className="font-bold text-blue-600 text-lg group-hover:text-blue-700">Nova Pergunta</span>
+                        <span className="font-bold text-blue-600 text-base md:text-lg group-hover:text-blue-700">Nova Pergunta</span>
                     </button>
 
                     {/* Existing Questions */}
@@ -433,6 +433,19 @@ export function QuestionGrid() {
                 size="md"
             >
                 <div className="grid grid-cols-1 gap-4">
+                    <button disabled className="flex items-center p-4 border-2 border-slate-100 rounded-xl bg-slate-50 text-left opacity-70 cursor-not-allowed relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 px-3 py-1 bg-gradient-to-r from-purple-500 to-indigo-500 text-white text-[10px] font-bold rounded-bl-lg">
+                            EM BREVE
+                        </div>
+                        <div className="w-12 h-12 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center mr-4">
+                            <Sparkles size={24} />
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-slate-800 flex items-center gap-2">Criar com IA</h3>
+                            <p className="text-sm text-slate-500">Gere perguntas automaticamente baseadas no seu conteúdo.</p>
+                        </div>
+                    </button>
+
                     <button onClick={() => selectTypeAndContinue("OpenText")} className="flex items-center p-4 border-2 border-slate-100 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all text-left">
                         <div className="w-12 h-12 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center mr-4">
                             <AlignLeft size={24} />

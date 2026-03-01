@@ -69,5 +69,5 @@ Os **Próximos Passos** para a maturidade do sistema incluem:
 - **Autenticação:** Implementar um sistema de autenticação para professores e alunos.
 - **Agrupamento por Aulas:** Criar entidades de `"Aulas"` que podem agrupar várias perguntas (assim o professor constrói um plano de aula).
 - **Comunidade:** Criar um sistema de comunidade para que os professores possam compartilhar suas aulas.
-- **Separação de Módulos:** Isolar e separar fisicamente as páginas de Criação, Apresentação e Relatórios em roteamentos distintos para melhor modularização de código.
-- **Otimização de Código:** Otimizar as chamadas para os endpoints serem paginadas.
+- **Separação de Módulos:** Isolar as páginas de Criação, Apresentação e Relatórios em roteamentos distintos para melhor modularização de código.
+- **Otimização de Código:** Otimizar as chamadas dos endpoints para serem paginadas.
