@@ -1,11 +1,12 @@
 "use client";
 
 import { Question, QuestionType } from "@/types/question";
-import { AlignLeft, BarChart, CheckCircle2, List, Plus, RefreshCw, Trash2, Users, Copy } from "lucide-react";
+import { AlignLeft, BarChart, CheckCircle2, List, Plus, RefreshCw, Trash2, Users, Copy, QrCode } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Modal } from "./Modal";
 import { QuestionGridItem } from "./QuestionGridItem";
 import io from "socket.io-client";
+import { QRCodeSVG } from "qrcode.react";
 
 interface Answer {
     id: string;
@@ -137,7 +138,7 @@ export function QuestionGrid() {
             title: q.title,
             options: "options" in q ? q.options : ["", ""],
             correctAnswers: q.correctAnswers || [],
-            image: q.image || null
+            image: (q.image as unknown as File) || null
         });
         setModalMode("form");
     };
@@ -617,38 +618,56 @@ export function QuestionGrid() {
                 size="xl"
                 hideHeader
                 bottomAction={
-                    <div className="flex items-center gap-4">
-                        {currentPlayQuestion?.correctAnswers && currentPlayQuestion.correctAnswers.length > 0 && !showingCorrectAnswer && (
+                    <div className="flex items-center gap-4 justify-between w-full relative">
+                        {/* Floating QR Code outside modal content */}
+                        <div className="relative bg-white/10 backdrop-blur-md p-4 rounded-3xl border border-white/20 shadow-xl flex items-center gap-4 group hover:bg-white/20 transition-all">
+                            <div className="bg-white p-2 rounded-xl shadow-sm relative">
+                                <QRCodeSVG
+                                    value={currentPlayQuestion ? `${baseUrl}/q/${currentPlayQuestion.code}` : ""}
+                                    size={80}
+                                    level="L"
+                                    fgColor="#1e293b"
+                                />
+                            </div>
+                            <div className="flex flex-col hidden sm:flex text-left">
+                                <h3 className="font-bold text-white text-lg leading-tight tracking-wide">Escaneie<br />para entrar</h3>
+                                <p className="text-white/70 text-xs font-medium mt-1">Aponte a câmera</p>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-1 justify-end gap-4 ml-auto">
+                            {currentPlayQuestion?.correctAnswers && currentPlayQuestion.correctAnswers.length > 0 && !showingCorrectAnswer && (
+                                <button
+                                    onClick={() => setShowingCorrectAnswer(true)}
+                                    className="px-8 py-3 bg-green-500 hover:bg-green-600 text-white backdrop-blur-md rounded-full font-bold shadow-xl transition-all"
+                                >
+                                    Exibir respostas
+                                </button>
+                            )}
                             <button
-                                onClick={() => setShowingCorrectAnswer(true)}
-                                className="px-8 py-3 bg-green-500 hover:bg-green-600 text-white backdrop-blur-md rounded-full font-bold shadow-xl transition-all"
+                                onClick={endPresentation}
+                                className="px-8 py-3 bg-white/10 hover:bg-white/20 text-white backdrop-blur-md rounded-full font-bold shadow-xl transition-all border border-white/20"
                             >
-                                Exibir respostas
+                                Encerrar apresentação
                             </button>
-                        )}
-                        <button
-                            onClick={endPresentation}
-                            className="px-8 py-3 bg-white/10 hover:bg-white/20 text-white backdrop-blur-md rounded-full font-bold shadow-xl transition-all border border-white/20"
-                        >
-                            Encerrar apresentação
-                        </button>
+                        </div>
                     </div>
                 }
             >
                 {currentPlayQuestion && (
                     <div className="flex flex-col items-center justify-center py-10 min-h-[50vh]">
-                        <div className="absolute top-6 left-1/2 -translate-x-1/2 flex items-center gap-3 px-6 py-2 bg-slate-100/80 rounded-full font-bold text-slate-700 tracking-widest text-xl border border-slate-200">
-                            <div>Acesse: <span className="text-blue-600">{displayUrl}/q</span> • Código: <span className="text-blue-600">{currentPlayQuestion.code.slice(0, 3)} {currentPlayQuestion.code.slice(3)}</span></div>
+                        <div className="absolute top-6 left-1/2 -translate-x-1/2 flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 bg-slate-100/80 rounded-full font-bold text-slate-700 tracking-wider text-sm sm:text-base border border-slate-200 whitespace-nowrap overflow-hidden max-w-[90vw]">
+                            <div className="truncate">Acesse: <span className="text-blue-600">{displayUrl}/q</span> • Código: <span className="text-blue-600">{currentPlayQuestion.code.slice(0, 3)} {currentPlayQuestion.code.slice(3)}</span></div>
                             <button
                                 onClick={() => {
                                     navigator.clipboard.writeText(`${baseUrl}/q/${currentPlayQuestion.code}`);
                                     setCopied(true);
                                     setTimeout(() => setCopied(false), 2000);
                                 }}
-                                className="p-2 hover:bg-slate-200 rounded-lg transition-colors text-slate-500 hover:text-blue-600 flex items-center group relative"
+                                className="p-1.5 sm:p-2 hover:bg-slate-200 rounded-lg transition-colors text-slate-500 hover:text-blue-600 flex items-center group relative shrink-0"
                                 title="Copiar link direto"
                             >
-                                {copied ? <CheckCircle2 size={20} className="text-green-500" /> : <Copy size={20} />}
+                                {copied ? <CheckCircle2 size={18} className="text-green-500" /> : <Copy size={18} />}
                             </button>
                         </div>
 
