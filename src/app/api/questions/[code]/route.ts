@@ -15,7 +15,12 @@ export async function GET(
       return NextResponse.json({ error: "Question not found" }, { status: 404 });
     }
 
-    return NextResponse.json(question);
+    const formatted = {
+      ...question,
+      image: question.image ? question.image.toString("utf-8") : null
+    };
+
+    return NextResponse.json(formatted);
   } catch (error) {
     return NextResponse.json({ error: "Failed to fetch question" }, { status: 500 });
   }
@@ -27,7 +32,12 @@ export async function PUT(
 ) {
     try {
         const { code } = await params;
-        const { title, type, options, correctAnswers } = await req.json();
+        const { title, type, options, correctAnswers, image } = await req.json();
+
+        let imageBuffer = undefined;
+        if (image !== undefined) {
+            imageBuffer = image ? Buffer.from(image, "utf-8") : null;
+        }
 
         const question = await prisma.question.update({
             where: { id: code },
@@ -35,11 +45,17 @@ export async function PUT(
                 title,
                 type,
                 options: options || [],
-                correctAnswers: correctAnswers || []
+                correctAnswers: correctAnswers || [],
+                ...(imageBuffer !== undefined && { image: imageBuffer })
             }
         });
 
-        return NextResponse.json(question);
+        const formatted = {
+            ...question,
+            image: question.image ? question.image.toString("utf-8") : null
+        };
+
+        return NextResponse.json(formatted);
     } catch (error) {
         console.error("Failed to update question", error);
         return NextResponse.json({ error: "Failed to update question" }, { status: 500 });

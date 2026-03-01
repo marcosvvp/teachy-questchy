@@ -23,10 +23,11 @@ export function QuestionGrid() {
     const [draftType, setDraftType] = useState<QuestionType>("OpenText");
     const [editingId, setEditingId] = useState<string | null>(null);
 
-    const [formData, setFormData] = useState<{ title: string; options: string[]; correctAnswers: string[] }>({
+    const [formData, setFormData] = useState<{ title: string; options: string[]; correctAnswers: string[]; image: File | null }>({
         title: "",
         options: ["", ""],
-        correctAnswers: []
+        correctAnswers: [],
+        image: null
     });
 
     const [socket, setSocket] = useState<any>(null);
@@ -125,7 +126,7 @@ export function QuestionGrid() {
 
     const selectTypeAndContinue = (type: QuestionType) => {
         setDraftType(type);
-        setFormData({ title: "", options: ["", "", ""], correctAnswers: [] });
+        setFormData({ title: "", options: ["", "", ""], correctAnswers: [], image: null });
         setModalMode("form");
     };
 
@@ -135,7 +136,8 @@ export function QuestionGrid() {
         setFormData({
             title: q.title,
             options: "options" in q ? q.options : ["", ""],
-            correctAnswers: q.correctAnswers || []
+            correctAnswers: q.correctAnswers || [],
+            image: q.image || null
         });
         setModalMode("form");
     };
@@ -195,6 +197,19 @@ export function QuestionGrid() {
 
         const filteredOptions = formData.options.map(O => O.trim()).filter(o => o.length > 0);
 
+        let imagePayload: string | null = null;
+        if (formData.image instanceof File) {
+            const fileToBase64 = (file: File): Promise<string> => new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result as string);
+                reader.onerror = error => reject(error);
+            });
+            imagePayload = await fileToBase64(formData.image);
+        } else if (typeof formData.image === "string") {
+            imagePayload = formData.image;
+        }
+
         if (editingId) {
             try {
                 const res = await fetch(`/api/questions/${editingId}`, {
@@ -205,6 +220,7 @@ export function QuestionGrid() {
                         type: draftType,
                         options: filteredOptions,
                         correctAnswers: draftType === "OpenText" ? formData.correctAnswers.filter(a => a.trim().length > 0) : formData.correctAnswers,
+                        image: imagePayload
                     })
                 });
 
@@ -226,7 +242,8 @@ export function QuestionGrid() {
                         type: draftType,
                         options: filteredOptions,
                         correctAnswers: draftType === "OpenText" ? formData.correctAnswers.filter(a => a.trim().length > 0) : formData.correctAnswers,
-                        code: generatedCode
+                        code: generatedCode,
+                        image: imagePayload
                     })
                 });
 
@@ -473,6 +490,37 @@ export function QuestionGrid() {
                         />
                     </div>
 
+                    <div>
+                        <label className="block text-sm font-semibold text-slate-700 mb-2">Imagem</label>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all placeholder:text-gray-400 resize-none text-slate-800"
+                            placeholder="Digite a descrição aqui..."
+                            onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                setFormData({ ...formData, image: file || null });
+                            }}
+                        />
+                        {formData.image && (
+                            <div className="relative mt-4 w-full flex justify-start group">
+                                <img
+                                    src={typeof formData.image === "string" ? formData.image : URL.createObjectURL(formData.image)}
+                                    alt="Preview"
+                                    className="rounded-xl shadow-sm border border-slate-200 max-h-48 object-contain"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setFormData({ ...formData, image: null })}
+                                    className="absolute -top-3 -right-3 bg-red-500 text-white rounded-full p-1.5 shadow-md hover:bg-red-600 transition-colors opacity-0 group-hover:opacity-100"
+                                    title="Remover imagem"
+                                >
+                                    <Trash2 size={16} />
+                                </button>
+                            </div>
+                        )}
+                    </div>
+
                     {draftType === "OpenText" && (
                         <div>
                             <label className="block text-sm font-semibold text-slate-700 mb-2">Resposta Correta (Opcional)</label>
@@ -609,6 +657,9 @@ export function QuestionGrid() {
                             <h2 className="text-4xl md:text-5xl font-extrabold text-slate-800 leading-tight">
                                 {currentPlayQuestion.title}
                             </h2>
+                            {currentPlayQuestion.image && typeof currentPlayQuestion.image === "string" && (
+                                <img src={currentPlayQuestion.image} alt="Question Image" className="mt-8 rounded-2xl mx-auto shadow-lg max-h-80 object-contain border border-slate-200" />
+                            )}
                         </div>
 
                         <div className="flex items-center justify-center gap-4 mb-8">

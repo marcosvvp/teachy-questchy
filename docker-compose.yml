@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   web:
     build:
@@ -10,8 +8,10 @@ services:
     environment:
       - NODE_ENV=production
       - DATABASE_URL=postgresql://postgres:teachy123@db:5432/teachy_db?schema=public
+    command: sh -c "npx prisma db push && node server.js"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     restart: unless-stopped
 
   db:
@@ -22,9 +22,14 @@ services:
       - POSTGRES_PASSWORD=teachy123
       - POSTGRES_DB=teachy_db
     ports:
-      - "5432:5432"
+      - "25432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d teachy_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres_data:

@@ -1,4 +1,5 @@
 FROM node:20-alpine AS base
+RUN apk update && apk add --no-cache libc6-compat openssl
 
 FROM base AS builder
 WORKDIR /app
@@ -19,6 +20,7 @@ COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/server.js ./server.js
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/prisma ./prisma
 
 EXPOSE 3000
 

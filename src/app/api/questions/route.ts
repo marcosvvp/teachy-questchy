@@ -6,7 +6,13 @@ export async function GET() {
     const questions = await prisma.question.findMany({
       orderBy: { createdAt: "desc" }
     });
-    return NextResponse.json(questions);
+    
+    const formatted = questions.map(q => ({
+      ...q,
+      image: q.image ? q.image.toString("utf-8") : null
+    }));
+
+    return NextResponse.json(formatted);
   } catch (error) {
     return NextResponse.json({ error: "Failed to fetch questions" }, { status: 500 });
   }
@@ -14,7 +20,9 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    const { title, type, options, code, correctAnswers } = await req.json();
+    const { title, type, options, code, correctAnswers, image } = await req.json();
+
+    const imageBuffer = image ? Buffer.from(image, "utf-8") : null;
 
     const question = await (prisma.question as any).create({
       data: {
@@ -22,11 +30,17 @@ export async function POST(req: Request) {
         type,
         options: options || [],
         correctAnswers: correctAnswers || [],
-        code
+        code,
+        image: imageBuffer
       }
     });
 
-    return NextResponse.json(question, { status: 201 });
+    const responseData = {
+      ...question,
+      image: question.image ? question.image.toString("utf-8") : null
+    };
+
+    return NextResponse.json(responseData, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: "Failed to create question " + error }, { status: 500 });
   }

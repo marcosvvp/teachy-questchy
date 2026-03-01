@@ -28,6 +28,7 @@ interface QuestionData {
     type: string;
     options: string[];
     isActive?: boolean;
+    image?: string | null;
 }
 
 function SortableItem(props: { id: string; option: string; index: number }) {
@@ -110,7 +111,8 @@ export default function StudentQuestionPage({ params }: { params: Promise<{ code
                     title: data.title,
                     type: data.type,
                     options: data.options || [],
-                    isActive: data.isActive
+                    isActive: data.isActive,
+                    image: data.image
                 });
 
                 if (data.type === "Ranking") {
@@ -307,13 +309,16 @@ export default function StudentQuestionPage({ params }: { params: Promise<{ code
 
     return (
         <div className="flex flex-col">
-            <div className="mb-8 border-b border-slate-100 pb-8">
+            <div className="mb-8 border-b border-slate-100 pb-8 text-center flex flex-col items-center">
                 <span className="inline-block px-3 py-1 rounded-full bg-blue-100 text-blue-700 font-bold text-xs mb-4 uppercase tracking-wider">
                     Questão {code.slice(0, 3)} {code.slice(3)}
                 </span>
-                <h1 className="text-2xl md:text-3xl font-extrabold text-slate-800 leading-tight">
+                <h1 className="text-2xl md:text-3xl font-extrabold text-slate-800 leading-tight w-full max-w-2xl">
                     {questionData.title}
                 </h1>
+                {questionData.image && typeof questionData.image === "string" && (
+                    <img src={questionData.image} alt="Imagem da questão" className="mt-8 rounded-2xl shadow-md max-h-64 object-contain border border-slate-200 mx-auto" />
+                )}
             </div>
 
             {questionData.type === "MultipleChoice" && (

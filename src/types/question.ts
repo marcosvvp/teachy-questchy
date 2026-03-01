@@ -7,6 +7,7 @@ export type BaseQuestion = {
   type: QuestionType;
   correctAnswers?: string[];
   studentsCount?: number;
+  image?: Blob;
 };
 
 export type OpenTextQuestion = BaseQuestion & {
