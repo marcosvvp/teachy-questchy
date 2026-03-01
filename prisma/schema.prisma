@@ -1,0 +1,31 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Question {
+  id             String   @id @default(uuid())
+  code           String   @unique
+  title          String
+  type           String
+  options        String[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  isActive       Boolean  @default(false)
+  correctAnswers String[]
+  answers        Answer[]
+  studentsCount  Int      @default(0)
+}
+
+model Answer {
+  id         String   @id @default(uuid())
+  questionId String
+  value      String
+  authorName String   @default("Anônimo")
+  createdAt  DateTime @default(now())
+  question   Question @relation(fields: [questionId], references: [id])
+}
