@@ -1,8 +1,9 @@
 "use client";
 
 import { Question, QuestionType } from "@/types/question";
-import { AlignLeft, BarChart, CheckCircle2, List, Plus, RefreshCw, Trash2, Users, Copy, QrCode, Sparkles } from "lucide-react";
+import { AlignLeft, BarChart, CheckCircle2, List, Plus, RefreshCw, Trash2, Users, Copy, QrCode, Sparkles, Map } from "lucide-react";
 import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import { Modal } from "./Modal";
 import { QuestionGridItem } from "./QuestionGridItem";
 import io from "socket.io-client";
@@ -15,6 +16,10 @@ interface Answer {
     authorName?: string;
     createdAt: string;
 }
+
+const MapQuestionForm = dynamic(() => import("./MapQuestionForm"), { ssr: false });
+const MapQuestionResults = dynamic(() => import("./MapQuestionResults"), { ssr: false });
+
 
 export function QuestionGrid() {
     const [questions, setQuestions] = useState<Question[]>([]);
@@ -381,6 +386,18 @@ export function QuestionGrid() {
                 </div>
             )
         }
+
+        if (q.type === "Map") {
+            return (
+                <div className="w-full mt-4 flex flex-col gap-4">
+                    <MapQuestionResults
+                        liveAnswers={liveAnswers}
+                        correctAnswerString={q.correctAnswers?.[0]}
+                        showCorrectAnswer={showingCorrectAnswer}
+                    />
+                </div>
+            );
+        }
     };
 
 
@@ -446,6 +463,16 @@ export function QuestionGrid() {
                         </div>
                     </button>
 
+                    <button onClick={() => selectTypeAndContinue("Map")} className="flex items-center p-4 border-2 border-slate-100 rounded-xl hover:border-emerald-500 hover:bg-emerald-50 transition-all text-left">
+                        <div className="w-12 h-12 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center mr-4 shrink-0">
+                            <Map size={24} />
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-slate-800">Mapa Interativo</h3>
+                            <p className="text-sm text-slate-500">Alunos marcam um ponto no mapa mundi.</p>
+                        </div>
+                    </button>
+
                     <button onClick={() => selectTypeAndContinue("OpenText")} className="flex items-center p-4 border-2 border-slate-100 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all text-left">
                         <div className="w-12 h-12 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center mr-4">
                             <AlignLeft size={24} />
@@ -489,7 +516,7 @@ export function QuestionGrid() {
                     <div className="flex items-center gap-2 mb-4 bg-slate-50 p-3 rounded-lg border border-slate-100 w-fit">
                         <span className="text-sm font-semibold text-slate-500">Tipo:</span>
                         <span className="text-sm font-bold text-blue-600">
-                            {draftType === "OpenText" ? "Texto Aberto" : draftType === "MultipleChoice" ? "Múltipla Escolha" : "Ranqueamento"}
+                            {draftType === "OpenText" ? "Texto Aberto" : draftType === "MultipleChoice" ? "Múltipla Escolha" : draftType === "Ranking" ? "Ranqueamento" : "Mapa Interativo"}
                         </span>
                     </div>
 
@@ -544,6 +571,16 @@ export function QuestionGrid() {
                                 placeholder="Digite a resposta esperada..."
                                 value={formData.correctAnswers[0] || ""}
                                 onChange={(e) => setFormData({ ...formData, correctAnswers: [e.target.value] })}
+                            />
+                        </div>
+                    )}
+
+                    {draftType === "Map" && (
+                        <div className="h-full">
+                            <label className="block text-sm font-semibold text-slate-700 mb-2 mt-4">Ponto Correto no Mapa</label>
+                            <MapQuestionForm
+                                value={formData.correctAnswers[0] ? JSON.parse(formData.correctAnswers[0]) : null}
+                                onChange={(pos) => setFormData({ ...formData, correctAnswers: [JSON.stringify(pos)] })}
                             />
                         </div>
                     )}
@@ -712,7 +749,7 @@ export function QuestionGrid() {
 
                         {/* Show Realtime Results Auto-Updated */}
                         <div className="w-full flex items-center justify-center animate-in fade-in duration-500 pb-16">
-                            {(showingResults || liveAnswers.length > 0) ? (
+                            {(showingResults || liveAnswers.length > 0 || currentPlayQuestion.type === "Map") ? (
                                 renderResultsView(currentPlayQuestion)
                             ) : (
                                 /* Empty state placeholders when no answers yet */

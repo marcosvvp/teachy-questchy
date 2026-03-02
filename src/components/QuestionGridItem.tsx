@@ -1,6 +1,6 @@
 "use client";
 
-import { Edit2, Play, AlignLeft, List, BarChart, BarChart3 } from "lucide-react";
+import { Edit2, Play, AlignLeft, List, BarChart, BarChart3, Map } from "lucide-react";
 import { Question } from "@/types/question";
 
 interface QuestionGridItemProps {
@@ -15,6 +15,7 @@ export function QuestionGridItem({ question, onEdit, onPlay, onReport }: Questio
         switch (question.type) {
             case "MultipleChoice": return <List size={24} />;
             case "Ranking": return <BarChart size={24} />;
+            case "Map": return <Map size={24} />;
             case "OpenText":
             default: return <AlignLeft size={24} />;
         }
@@ -24,6 +25,7 @@ export function QuestionGridItem({ question, onEdit, onPlay, onReport }: Questio
         switch (question.type) {
             case "MultipleChoice": return "Múltipla Escolha";
             case "Ranking": return "Ranqueamento";
+            case "Map": return "Mapa Interativo";
             case "OpenText": return "Texto Aberto";
         }
     };

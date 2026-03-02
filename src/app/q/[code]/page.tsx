@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, use, useEffect } from "react";
+import dynamic from "next/dynamic";
 import { CheckCircle2, ChevronRight, Lock, GripVertical } from "lucide-react";
 import {
     DndContext,
@@ -21,6 +22,8 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 
 import io from "socket.io-client";
+
+const StudentMap = dynamic(() => import("../../../components/StudentMap"), { ssr: false });
 
 interface QuestionData {
     id: string;
@@ -64,6 +67,7 @@ export default function StudentQuestionPage({ params }: { params: Promise<{ code
     const [selectedOptions, setSelectedOptions] = useState<number[]>([]);
     const [textAnswer, setTextAnswer] = useState("");
     const [rankingItems, setRankingItems] = useState<{ id: string; text: string; originalLetter: string }[]>([]);
+    const [mapAnswer, setMapAnswer] = useState<{ lat: number; lng: number } | null>(null);
 
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [questionData, setQuestionData] = useState<QuestionData | null>(null);
@@ -173,6 +177,8 @@ export default function StudentQuestionPage({ params }: { params: Promise<{ code
             finalValue = textAnswer;
         } else if (questionData.type === "Ranking") {
             finalValue = rankingItems.map(i => i.originalLetter).join(",");
+        } else if (questionData.type === "Map" && mapAnswer) {
+            finalValue = JSON.stringify(mapAnswer);
         }
 
         if (!finalValue) return;
@@ -386,9 +392,15 @@ export default function StudentQuestionPage({ params }: { params: Promise<{ code
                 </div>
             )}
 
+            {questionData.type === "Map" && (
+                <div className="mb-8 w-full h-[400px] md:h-[500px]">
+                    <StudentMap onSelect={(pos) => setMapAnswer(pos)} />
+                </div>
+            )}
+
             <button
                 onClick={handleSubmit}
-                disabled={(questionData.type === "MultipleChoice" && selectedOptions.length === 0) || (questionData.type === "OpenText" && textAnswer.trim().length === 0)}
+                disabled={(questionData.type === "MultipleChoice" && selectedOptions.length === 0) || (questionData.type === "OpenText" && textAnswer.trim().length === 0) || (questionData.type === "Map" && !mapAnswer)}
                 className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-bold text-lg py-4 rounded-xl flex items-center justify-center gap-3 transition-all transform hover:shadow-lg disabled:hover:shadow-none hover:-translate-y-1 disabled:transform-none"
             >
                 Mandar Resposta

@@ -6,10 +6,11 @@ Questchy é uma plataforma para criar experiências de aula interativas entre al
 
 ## 🚀 Funcionalidades
 
-Atualmente, o Questchy suporta três tipos de interações com os alunos:
-- **Texto Livre** (O aluno digita a resposta correta em uma caixa de texto)
-- **Múltipla Escolha** (O aluno escolhe por meio de uma ou mais alternativas predestinadas)
-- **Ranking** (O aluno ordena cartões de opções por meio de um sistema de *drag and drop*)
+Atualmente, o Questchy suporta quatro tipos de interações com os alunos:
+- ** 📍 Mapa Interativo** (O aluno marca um ponto no mapa mundi)
+- ** 📝 Texto Livre** (O aluno digita a resposta correta em uma caixa de texto)
+- ** 🗳️ Múltipla Escolha** (O aluno escolhe por meio de uma ou mais alternativas predestinadas)
+- ** 📊 Ranking** (O aluno ordena cartões de opções por meio de um sistema de *drag and drop*)
 
 ### 👩‍🏫 Visão do Professor
 O professor possui acesso ao painel de gerenciamento (a tela inicial "logada" na aplicação). 
